@@ -104,8 +104,8 @@ theorem const_seq_converge (a : ℕ → ℝ) (h : ∀ n : ℕ, a n = a 0):
       exact ε_pos 
 
 
-theorem mul_convergent_seq (m : ℕ) (a : ℕ → ℝ) (L : ℕ) :
-    seq_converge a L → seq_converge (m * a) (m * L) := by
+theorem mul_convergent_seq (m : ℝ) (a : ℕ → ℝ) (L : ℕ) :
+    seq_converge a L → seq_converge (m • a) (m • L) := by
       unfold seq_converge
       intro a_to_L ε1 ε1_pos 
       norm_num at ε1_pos
@@ -116,7 +116,6 @@ theorem mul_convergent_seq (m : ℕ) (a : ℕ → ℝ) (L : ℕ) :
         obtain ⟨N1, hN1⟩ := a_to_L ε ε_pos 
         use N1
         intro n n_gt_N
-        rw [Pi.mul_apply]
         norm_num
         rw[← mul_sub, abs_mul]
         have hε : |a n - ↑L| < ε := hN1 n n_gt_N
@@ -129,18 +128,17 @@ theorem mul_convergent_seq (m : ℕ) (a : ℕ → ℝ) (L : ℕ) :
           exact mul_le_mul_of_nonneg_left hε_le (abs_nonneg _)
         exact lt_of_le_of_lt h1 hε1
       · apply Classical.not_not.mp at m0
-        have a0 : ∀ n : ℕ, (↑m * a) n = 0 := by
+        have a0 : ∀ n : ℕ, (m • a) n = 0 := by
           intro n
-          simp only [Pi.mul_apply, Pi.natCast_apply, mul_eq_zero, Nat.cast_eq_zero]
-          left
-          exact m0
+          rw[Pi.smul_apply, m0, zero_smul]
         use 0
         intro c m_pos
-        norm_cast
-        rw[a0 c, m0, zero_mul]
-        simp only [CharP.cast_eq_zero, sub_self, abs_zero]
+        rw[a0 c, m0, zero_smul]
+        simp only [sub_self, abs_zero]
         exact ε1_pos 
 
-
-
-
+example : seq_converge ((-1 : ℝ) • harmonic_seq) 0 := by
+  let h := (mul_convergent_seq (-1) harmonic_seq (0 : ℕ))
+  rw[Nat.cast_zero, smul_zero] at h
+  apply h
+  exact harmonic_seq_converge_0
