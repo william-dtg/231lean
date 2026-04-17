@@ -107,12 +107,10 @@ theorem const_seq_converge (a : ℕ → ℝ) (h : ∀ n : ℕ, a n = a 0):
 theorem mul_convergent_seq (m : ℕ) (a : ℕ → ℝ) (L : ℕ) :
     seq_converge a L → seq_converge (m * a) (m * L) := by
       unfold seq_converge
-      intro a_to_L
-      intro ε1 ε1_pos 
+      intro a_to_L ε1 ε1_pos 
       norm_num at ε1_pos
       by_cases m0 : m ≠ 0
-      · 
-        let ε := (ε1 / (|(m : ℝ)| + 1))
+      · let ε := (ε1 / (|(m : ℝ)| + 1))
         have d_pos : 0 < |(m : ℝ)| + 1 := add_pos_of_nonneg_of_pos (abs_nonneg (m : ℝ)) one_pos
         have ε_pos : 0 < ε := div_pos ε1_pos d_pos
         obtain ⟨N1, hN1⟩ := a_to_L ε ε_pos 
@@ -130,18 +128,17 @@ theorem mul_convergent_seq (m : ℕ) (a : ℕ → ℝ) (L : ℕ) :
         have h1 : |↑m| * |a n - ↑L| ≤ |↑m| * ε := by
           exact mul_le_mul_of_nonneg_left hε_le (abs_nonneg _)
         exact lt_of_le_of_lt h1 hε1
-      · -- for m = 0
-        simp at m0
+      · apply Classical.not_not.mp at m0
         have a0 : ∀ n : ℕ, (↑m * a) n = 0 := by
           intro n
-          simp
+          simp only [Pi.mul_apply, Pi.natCast_apply, mul_eq_zero, Nat.cast_eq_zero]
           left
           exact m0
         use 0
         intro c m_pos
         norm_cast
         rw[a0 c, m0, zero_mul]
-        simp
+        simp only [CharP.cast_eq_zero, sub_self, abs_zero]
         exact ε1_pos 
 
 
