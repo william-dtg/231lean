@@ -148,11 +148,32 @@ theorem neg_harmonic_seq_converge_0 :
       exact harmonic_seq_converge_0
 
 example : 
-    seq_converge sin_harmonic_seq 0 := by
-      have ha : sin_harmonic_seq ≤ harmonic_seq := sorry
-      have hb : ((-1 : ℝ) • harmonic_seq) ≤ sin_harmonic_seq := sorry
-      apply squeeze ((-1 : ℝ) • harmonic_seq) sin_harmonic_seq harmonic_seq
-      exact hb
-      exact ha
-      exact neg_harmonic_seq_converge_0
-      exact harmonic_seq_converge_0
+    seq_converge ((fun n => Real.sin n : ℕ → ℝ) • harmonic_seq) 0 := by
+      let s := ((fun n => Real.sin n : ℕ → ℝ) • harmonic_seq)
+      have h_pos : ∀ n, 0 ≤ harmonic_seq n := by 
+        intro n 
+        unfold harmonic_seq
+        by_cases n0 : n = 0
+        · simp [n0]
+        · simp [n0]
+      apply squeeze 
+        ((-1 : ℝ) • harmonic_seq)
+        s
+        harmonic_seq
+      · intro n
+        have h : ((-1 : ℝ) • harmonic_seq) n ≤ s n := by
+          dsimp [s]
+          exact mul_le_mul_of_nonneg_right
+            (Real.neg_one_le_sin (n : ℝ))
+            (h_pos n)
+        exact h
+      · intro n
+        have h : s n ≤ harmonic_seq n := by
+          dsimp [s]
+          nth_rw 2 [← one_mul (harmonic_seq n)]
+          exact mul_le_mul_of_nonneg_right
+            (Real.sin_le_one (n : ℝ))
+            (h_pos n)
+        exact h
+      · exact neg_harmonic_seq_converge_0
+      · exact harmonic_seq_converge_0
