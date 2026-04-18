@@ -6,6 +6,9 @@ def seq_converge (a : ℕ → ℝ) (L : ℝ) : Prop :=
 noncomputable def harmonic_seq (n : ℕ) : ℝ := 
   if n = 0 then 0 else 1/n
 
+noncomputable def sin_harmonic_seq (n : ℕ) : ℝ := 
+  if n = 0 then 0 else (Real.sin n)/n
+
 example (n : ℕ) (n_pos : n > 0) : 0 < 1 / (↑n : ℝ) := by
   -- cast n to ℝ first
   exact one_div_pos.mpr (Nat.cast_pos.mpr n_pos)
@@ -137,8 +140,19 @@ theorem mul_convergent_seq (m : ℝ) (a : ℕ → ℝ) (L : ℕ) :
         simp only [sub_self, abs_zero]
         exact ε1_pos 
 
-example : seq_converge ((-1 : ℝ) • harmonic_seq) 0 := by
-  let h := (mul_convergent_seq (-1) harmonic_seq (0 : ℕ))
-  rw[Nat.cast_zero, smul_zero] at h
-  apply h
-  exact harmonic_seq_converge_0
+theorem neg_harmonic_seq_converge_0 :
+    seq_converge ((-1 : ℝ) • harmonic_seq) 0 := by
+      let h := (mul_convergent_seq (-1) harmonic_seq (0 : ℕ))
+      rw[Nat.cast_zero, smul_zero] at h
+      apply h
+      exact harmonic_seq_converge_0
+
+example : 
+    seq_converge sin_harmonic_seq 0 := by
+      have ha : sin_harmonic_seq ≤ harmonic_seq := sorry
+      have hb : ((-1 : ℝ) • harmonic_seq) ≤ sin_harmonic_seq := sorry
+      apply squeeze ((-1 : ℝ) • harmonic_seq) sin_harmonic_seq harmonic_seq
+      exact hb
+      exact ha
+      exact neg_harmonic_seq_converge_0
+      exact harmonic_seq_converge_0
