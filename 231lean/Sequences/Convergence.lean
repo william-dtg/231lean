@@ -3,6 +3,9 @@ import Mathlib.Analysis.AbsoluteValue.Equivalence
 def seq_converge (a : ℕ → ℝ) (L : ℝ) : Prop :=
   ∀ ε > 0, ∃ N, ∀ n > N, |a n - L| < ε 
 
+def seq_convergent (a : ℕ → ℝ) : Prop :=
+  ∃ L, ∀ ε > 0, ∃ N, ∀ n > N, |a n - L| < ε 
+
 noncomputable def harmonic_seq (n : ℕ) : ℝ := 
   if n = 0 then 0 else 1/n
 
