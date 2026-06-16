@@ -72,7 +72,6 @@ lemma increasing_le (a : ℕ → ℝ) (inc : increasing a) :
         -- how lean wants me to state it
         have ih' : a N ≤ a (N + c + 1) := by sorry
         linarith
-        
 
 theorem increasing_bounded_converges 
   (a : ℕ → ℝ)
@@ -93,7 +92,7 @@ theorem increasing_bounded_converges
           linarith
         unfold bounded_above at s_ε_no_bound
         simp at s_ε_no_bound
-        exact s_ε_no_bound 
+        assumption
       obtain ⟨N, hn⟩ := ex_an_gt_sε  
       use N
       intro n N_le_n
@@ -105,3 +104,4 @@ theorem increasing_bounded_converges
       constructor
       · linarith
       · linarith
+

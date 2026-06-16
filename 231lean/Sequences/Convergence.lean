@@ -67,48 +67,37 @@ theorem squeeze (a b c : ℕ → ℝ) (L : ℝ)
     obtain ⟨N1, hN1⟩ := cL ε ε_pos
     obtain ⟨N2, hN2⟩ := aL ε ε_pos
     let N : ℕ := max N1 N2
-    have N1_le_N : N1 ≤ N := by
-      exact Nat.le_max_left N1 N2
-    have N2_le_N : N2 ≤ N := by
-      exact Nat.le_max_right N1 N2
     use N
     intro n n_gt_N
-    have N_lt_n : N < n := Lean.Omega.Nat.lt_of_gt n_gt_N
+    -- Interestingly grind[aleb n, blec n] solves here
     have n_gt_N1 : n > N1 := by
-      have h : N1 < n := lt_of_le_of_lt N1_le_N N_lt_n
-      exact Lean.Omega.Nat.lt_of_gt h
+      grind
     have n_gt_N2 : n > N2 := by
-      have h : N2 < n := lt_of_le_of_lt N2_le_N N_lt_n
-      exact Lean.Omega.Nat.lt_of_gt h
+      grind
     rw[abs_lt]
     constructor
     · have an_fits : |a n - L| < ε := by
         exact hN2 n n_gt_N2
       rw [abs_lt] at an_fits
-      obtain ⟨h1, h2⟩ := an_fits
       have hle : a n - L ≤ b n - L := by
-        have h : a n ≤ b n := aleb n
-        exact sub_le_sub_right h L
-      exact lt_of_lt_of_le h1 hle
+        linarith [aleb n]
+      linarith
     · have cn_fits : |c n - L| < ε := by
         exact hN1 n n_gt_N1  
       rw [abs_lt] at cn_fits
-      obtain ⟨h1, h2⟩ := cn_fits
       have hge : b n - L ≤ c n - L := by
-        have h : b n ≤ c n := blec n
-        exact sub_le_sub_right h L
-      exact lt_of_le_of_lt hge h2
+        linarith [blec n]
+      linarith
 
 theorem const_seq_converge (a : ℕ → ℝ) (h : ∀ n : ℕ, a n = a 0):
     seq_converge a (a 0) := by
       unfold seq_converge
       intro ε ε_pos 
-      norm_num at ε_pos 
       use 0
       intro m m_pos
-      rw[h m, sub_eq_add_neg, add_neg_cancel (a 0), abs_zero]
-      exact ε_pos 
-
+      rw[h m]
+      norm_num
+      exact ε_pos
 
 theorem mul_convergent_seq (m : ℝ) (a : ℕ → ℝ) (L : ℕ) :
     seq_converge a L → seq_converge (m • a) (m • L) := by
@@ -146,9 +135,9 @@ theorem mul_convergent_seq (m : ℝ) (a : ℕ → ℝ) (L : ℕ) :
 theorem neg_harmonic_seq_converge_0 :
     seq_converge ((-1 : ℝ) • harmonic_seq) 0 := by
       let h := (mul_convergent_seq (-1) harmonic_seq (0 : ℕ))
-      rw[Nat.cast_zero, smul_zero] at h
-      apply h
-      exact harmonic_seq_converge_0
+      norm_num at h
+      norm_num
+      exact h harmonic_seq_converge_0
 
 example : 
     seq_converge ((fun n => Real.sin n : ℕ → ℝ) • harmonic_seq) 0 := by
