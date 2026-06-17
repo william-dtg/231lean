@@ -17,7 +17,7 @@ theorem sup_ex : ∀ a, ∀ b, bounded_above a b → ∃ s, supremum a s := sorr
 
 def increasing (a : ℕ → ℝ) := ∀ n : ℕ, a n ≤ a (n+1)
 
-def cauchy (a : ℕ → ℝ) := ∀ ε > 0, ∃ N : ℕ, ∀ n ≥ N, ∀ m ≥ N, |a n - a m| < ε  
+def cauchy (a : ℕ → ℝ) := ∀ ε > 0, ∃ N : ℕ, ∀ n > N, ∀ m > N, |a n - a m| < ε  
 
 def infimum (a : ℕ → ℝ) (i : ℝ) :=
   bounded_below a i ∧ ∀ b, bounded_below a b → b ≤ i
@@ -108,3 +108,22 @@ theorem const_cauchy (a : ℕ → ℝ) (h : ∀ n : ℕ, a n = a 0) :
       use 0
       intro n _ m _
       grind
+
+lemma convergent_implies_cauchy (a : ℕ → ℝ) (conv : seq_convergent a) :
+    cauchy a := by
+      unfold seq_convergent at conv 
+      unfold cauchy
+      obtain ⟨L, hL⟩ := conv
+      intro ε ε_pos
+      have quarter_ε_pos : ε / 4 > 0 := by linarith
+      obtain ⟨N, hN⟩ := hL (ε/4) quarter_ε_pos
+      use N
+      intro n n_pos m m_pos
+      rw[← add_zero (a n)]
+      have l : 0 = L - L := by norm_num
+      rw[l]
+      have h : |a n + (L - L) - a m| = |a n - L + (L - a m)| := by grind
+      rw[h]
+      have h2 : |a n + (L - L) - a m| ≤ |a n - L| + |a m - L| := by grind
+      have h3 : |a n - L| + |a m - L| < ε / 2 := by grind
+      linarith
